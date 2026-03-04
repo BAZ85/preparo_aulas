@@ -1,0 +1,36 @@
+[project]
+name = "preparo_de_aula"
+version = "0.1.0"
+description = "preparo_de_aula using crewAI"
+authors = [{ name = "Your Name", email = "you@example.com" }]
+requires-python = ">=3.10,<3.14"
+dependencies = [
+    "crewai-tools>=1.9.3",
+    "crewai[tools]==1.9.3",
+    "duckduckgo-search>=8.1.1",
+    "google-genai>=1.64.0",
+    "htmldocx>=0.0.6",
+    "langchain-community>=0.4.1",
+    "markdown>=3.10.2",
+    "pandas>=2.3.3",
+    "pypdf>=6.7.3",
+    "python-docx>=1.2.0",
+    "python-dotenv>=1.1.1",
+    "streamlit>=1.54.0",
+    "youtube-transcript-api>=1.2.4",
+]
+
+[project.scripts]
+preparo_de_aula = "preparo_de_aula.main:run"
+run_crew = "preparo_de_aula.main:run"
+train = "preparo_de_aula.main:train"
+replay = "preparo_de_aula.main:replay"
+test = "preparo_de_aula.main:test"
+run_with_trigger = "preparo_de_aula.main:run_with_trigger"
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.crewai]
+type = "crew"

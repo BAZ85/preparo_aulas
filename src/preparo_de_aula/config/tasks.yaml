@@ -1,0 +1,153 @@
+analyze_documents_task:
+  description: >
+    O conteúdo base foi disponibilizado através de: {arquivo_ou_url}.
+    Usando as ferramentas disponíveis, analise profundamente o arquivo ou URL e identifique TODOS os tópicos e conteúdos presentes no material.
+    Seu objetivo NÃO é produzir um resumo. Seu objetivo é produzir um **MAPA COMPLETO DO CONTEÚDO**.
+    Extraia e organize obrigatoriamente:
+      1. Tema principal do material.
+      2. Todos os tópicos abordados.
+      3. Todos os subtemas e subdivisões.
+      4. Conceitos teóricos fundamentais.
+      5. Princípios apresentados.
+      6. Exemplos utilizados no material.
+      7. Toda legislação citada (leis, artigos, códigos).
+      8. Toda jurisprudência mencionada.
+      9. Todas as súmulas citadas.
+      10. Doutrinadores ou autores mencionados.
+      11. Artigos científicos eventualmente citados.
+
+    ATENÇÃO CRÍTICA:
+      - É absolutamente proibido omitir qualquer tópico.
+      - Não simplifique ou resuma excessivamente os conteúdos.
+      - Todos os princípios, regras e conceitos presentes no material devem ser listados.
+      - Este mapa será utilizado como **checklist obrigatório** para a criação do plano de aula.
+
+    A aula será sobre: {assunto} na disciplina {materia} para alunos do nível {nivel_escolaridade} com duração de {duracao} minutos.
+
+  expected_output: >
+    Um **MAPA ESTRUTURAL COMPLETO DO CONTEÚDO**, organizado no seguinte formato:
+
+    Tema principal
+
+    Tópicos identificados
+      - Tópico
+        - Subtópicos
+        - Conceitos teóricos
+        - Exemplos apresentados
+        - Legislação citada
+        - Jurisprudência citada
+        - Súmulas citadas
+        - Autores mencionados
+
+    Referências jurídicas identificadas
+      - Leis
+      - Jurisprudência
+      - Súmulas
+      - Artigos científicos
+
+    O nível de detalhamento deve ser alto para garantir que nenhum conteúdo relevante seja perdido.
+
+  agent: document_analyst
+
+
+research_topic_task:
+  description: >
+    Você recebeu um **MAPA ESTRUTURAL COMPLETO** do conteúdo extraído dos materiais de referência sobre {assunto} na área de {materia}.
+    Sua tarefa é expandir cada tópico individualmente através de pesquisa na internet, utilizando ferramentas de busca (DuckDuckGo).
+
+    Para cada tópico identificado no mapa:
+      - Pesquise doutrina relevante.
+      - Identifique autores consagrados que tratam do tema.
+      - Busque legislação pertinente.
+      - Busque jurisprudência real.
+      - Identifique súmulas aplicáveis.
+      - Busque exemplos práticos ou aplicações do conceito.
+
+    ATENÇÃO IMPORTANTE:
+
+      - Nenhum tópico do mapa inicial pode ser removido.
+      - Todos os tópicos devem ser expandidos individualmente.
+      - O conteúdo encontrado deve complementar o material de referência.
+      - Se o material original já trouxer legislação ou jurisprudência, ela deve ser mantida e incorporada à explicação.
+
+  expected_output: >
+    Um **DOCUMENTO TEÓRICO EXPANDIDO**, contendo:
+
+    Para cada tópico identificado:
+
+    Tópico
+      - Explicação teórica completa
+      - Doutrina associada
+      - Autores e doutrinadores
+      - Legislação aplicável
+      - Jurisprudência relevante
+      - Súmulas pertinentes
+      - Exemplos práticos
+
+    O documento deve ser profundo, detalhado e abrangente, contendo toda a teoria necessária para compor uma aula completa.
+
+  agent: researcher
+
+
+create_lesson_plan_task:
+  description: >
+    Você recebeu o **DOCUMENTO TEÓRICO EXPANDIDO**, que contém todo o conteúdo necessário para a aula sobre {assunto} na disciplina de {materia}.
+
+    Sua tarefa é transformar esse conteúdo em um **ROTEIRO DE AULA COMPLETO**.
+
+    A aula será ministrada para estudantes do nível {nivel_escolaridade} e terá duração total de {duracao} minutos.
+
+    O roteiro deve seguir uma estrutura pedagógica clara, contendo:
+
+      Introdução
+      Desenvolvimento
+      Conclusão
+
+    ATENÇÃO MÁXIMA:
+
+      - Todos os tópicos identificados no mapa inicial devem aparecer no plano de aula.
+      - Nenhum tópico pode ser omitido.
+      - A soma das durações deve ser exatamente {duracao} minutos.
+      - O plano deve conter explicação teórica completa, não apenas marcadores curtos.
+
+    Regras para uso de referências jurídicas:
+
+      - Legislação, jurisprudência e súmulas devem aparecer **dentro da explicação do respectivo tópico teórico**.
+      - Nunca crie uma seção isolada apenas para listar leis ou jurisprudência.
+
+  expected_output: >
+    Um **Roteiro de Aula completo em Markdown**, contendo:
+
+    # Roteiro de Aula: {assunto} - {materia}
+
+    **Nível:** {nivel_escolaridade}
+    **Duração:** {duracao} minutos
+
+    ## Introdução (tempo)
+
+    ## Tópicos da Aula
+
+    Para cada tópico:
+
+    ## Nome do Tópico (duração)
+
+    **Conteúdo Teórico**
+    Explicação completa do tema.
+
+    **Referências e Autores**
+    Doutrinadores e autores relevantes.
+
+    **Exemplos e Analogias**
+    Aplicações práticas para facilitar o aprendizado.
+
+    **Base jurídica**
+    Legislação, jurisprudência e súmulas incorporadas à explicação.
+
+    ## Conclusão (tempo)
+
+    ## Checklist de Cobertura dos Tópicos
+    Lista confirmando que todos os tópicos identificados no mapa inicial foram abordados no roteiro.
+
+    A saída deve estar formatada em Markdown válido e conter explicações profundas e completas.
+
+  agent: lesson_planner
