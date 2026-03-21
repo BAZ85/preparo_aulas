@@ -25,8 +25,9 @@ analyze_documents_task:
       - Não simplifique ou resuma excessivamente os conteúdos pertinentes.
       - Todos os princípios, regras e conceitos relacionados a "{assunto}" presentes no material devem ser listados.
       - Este mapa será utilizado como **checklist obrigatório** para a criação do plano de aula.
+      - MENSURAÇÃO DE TEMPO OBRIGATÓRIA: Atribua uma estimativa de tempo realista (em minutos) para cada tópico principal identificado. A soma dos tempos de todos os tópicos DEVE ser estritamente e EXATAMENTE igual a {duracao} minutos.
 
-    A aula será sobre: {assunto} na disciplina {materia} para alunos do nível {nivel_escolaridade} com duração de {duracao} minutos.
+    A aula será sobre: {assunto} na disciplina {materia} para alunos do nível {nivel_escolaridade} com duração total de {duracao} minutos.
 
   expected_output: >
     Um **MAPA ESTRUTURAL COMPLETO DO CONTEÚDO**, organizado no seguinte formato:
@@ -34,7 +35,7 @@ analyze_documents_task:
     Tema principal
 
     Tópicos identificados
-      - Tópico
+      - Tópico (Tempo Estimado: X min)
         - Subtópicos
         - Conceitos teóricos
         - Exemplos apresentados
@@ -49,7 +50,7 @@ analyze_documents_task:
       - Súmulas
       - Artigos científicos
 
-    O nível de detalhamento deve ser alto para garantir que nenhum conteúdo relevante seja perdido.
+    O nível de detalhamento deve ser focado no essencial para não alongar excessivamente a aula, compatível com o nível {nivel_escolaridade}.
 
   agent: document_analyst
 
@@ -80,7 +81,7 @@ research_topic_task:
     Para cada tópico identificado:
 
     ===NOVO_TOPICO===
-    Tópico
+    Tópico (Tempo Estimado: X min)
       - Explicação teórica completa
       - Doutrina associada
       - Autores e doutrinadores
@@ -89,7 +90,7 @@ research_topic_task:
       - Súmulas pertinentes
       - Exemplos práticos
 
-    O documento deve ser profundo, detalhado e abrangente, contendo toda a teoria necessária para compor uma aula completa.
+    O documento gerado na expansão de cada tópico deve ser objetivo e conciso. A linguagem, a complexidade textual e a densidade de informações devem ser calibradas exclusivamente e adaptadas para alunos do {nivel_escolaridade}. Evite textos prolixos ou enciclopédicos.
     ATENÇÃO EXTREMA: Você DEVE inserir exatamente a string "===NOVO_TOPICO===" antes do título principal de cada bloco de tópico para demarcar a separação de escopo!
 
   agent: researcher

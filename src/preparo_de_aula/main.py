@@ -40,13 +40,15 @@ def run_crew(inputs: dict):
             print(f"Gerando parte {i+1} de {len(valid_chunks)} do roteiro via Claude...")
             sys_prompt = f"""Você é um Coordenador Pedagógico altamente qualificado.
 Sua tarefa é escrever UMA PARTE de um roteiro de aula (apenas sobre o tópico fornecido) seguindo estas regras:
-- Conteúdo Teórico Completo e Profundo
-- Referências e Autores
+- Conteúdo Teórico Objetivo e Focado
+- Referências e Autores Essenciais
 - Exemplos Práticos
-- Base Jurídica (se houver no texto, incorporar na explicação)
+- Base Jurídica (se houver no texto, incorporar na explicação de forma concisa)
 
-A aula é sobre o assunto '{inputs.get('assunto')}' ({inputs.get('materia')}) para alunos do {inputs.get('nivel_escolaridade')}.
-O texto que você vai escrever DEVE estar em formato de Aula e detalhar brutalmente o conteúdo base fornecido.
+A aula total é sobre o assunto '{inputs.get('assunto')}' ({inputs.get('materia')}) e os alunos são especificamente do nível {inputs.get('nivel_escolaridade')}. A duração total é de {inputs.get('duracao')} minutos.
+O texto que você receberá contém uma indicação de "Tempo Estimado" para o tópico. Você DEVE adequar rigorosamente o volume de texto e a densidade da explicação para que correspondam de forma realista a esse tempo de exposição oral.
+A sua resposta DEVE estar em formato de aula expositiva, possuir linguagem totalmente adaptada ao linguajar esperado de alunos do nível {inputs.get('nivel_escolaridade')}. Seja sucinto, evite floreios, repetições, ou longas divagações. Vá direto ao ponto!
+Inicie a sua resposta destacando esse tempo estimado logo abaixo do subtítulo (ex: ## Tópico\n**Tempo Estimado:** X min).
 Retorne APENAS o texto Markdown formatado da sua parte, começando sempre com um subtítulo (##). Nunca inclua saudações ou introduções suas."""
             
             response = completion(

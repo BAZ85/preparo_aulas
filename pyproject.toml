@@ -5,9 +5,11 @@ description = "preparo_de_aula using crewAI"
 authors = [{ name = "Your Name", email = "you@example.com" }]
 requires-python = ">=3.10,<3.14"
 dependencies = [
+    "apscheduler>=3.11.2",
     "crewai-tools>=1.9.3",
     "crewai[anthropic,tools]==1.9.3",
     "duckduckgo-search>=8.1.1",
+    "email-validator>=2.3.0",
     "fastapi>=0.135.1",
     "google-genai>=1.64.0",
     "htmldocx>=0.0.6",
