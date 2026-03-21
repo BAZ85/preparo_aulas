@@ -4,11 +4,9 @@ import asyncio
 from langchain_core.prompts import ChatPromptTemplate
 from langchain_google_genai import ChatGoogleGenerativeAI
 from langchain_core.output_parsers import StrOutputParser
-from langchain_community.tools import DuckDuckGoSearchRun
-from langchain.agents import AgentExecutor, create_tool_calling_agent
+from duckduckgo_search import DDGS
 
 def get_gemini_llm(temperature=0.7):
-    # Usando o modelo Pro sugerido, ajuste se precisar de outro
     return ChatGoogleGenerativeAI(model="gemini-2.5-pro", temperature=temperature, max_output_tokens=8192)
 
 def generate_structural_map(content: str, inputs: dict) -> str:
@@ -58,37 +56,47 @@ Referências identificadas (se houver)
 
 async def research_single_topic(topic_chunk: str, inputs: dict) -> str:
     """
-    Passo 2 individual: Expande e pesquisa um único tópico usando AgentTools.
+    Passo 2 individual: Expande e pesquisa um único tópico de forma direta (Sem Agent Loops).
     """
     llm = get_gemini_llm(temperature=0.3)
-    tools = [DuckDuckGoSearchRun(name="pesquisa_duckduckgo", description="Busca online informações complementares teóricas e práticas sobre um tópico de aula.")]
-    
-    prompt = ChatPromptTemplate.from_messages([
-        ("system", """Você é um Professor de nível {nivel_escolaridade} especialista em {materia} e Pesquisador Acadêmico experiente.
-Seu trabalho é expandir profundamente o tópico recebido incorporando (se necessário) a internet para referências-chave (doutrina, leis, etc).
-Seja muito didático e objetivo. Não gere textos enciclopédicos. Adapte a fala aos alunos de {nivel_escolaridade}.
-
-OBRIGATÓRIO: 
-- Você DEVE iniciar todo o seu texto OBRIGATORIAMENTE com a string literal "===NOVO_TOPICO===" no início exato da resposta.
-- Logo abaixo, insira o Título do Tópico preservando sua tag de '(Tempo Estimado: X min)'.
-- Em seguida, expanda a explicação teórica do tópico e liste suas doutrinas, autores ou leis aplicáveis.
-"""),
-        ("human", "Expanda o seguinte bloco de tópico do mapa estrutural, pesquisando detalhes e exemplos pertinentes: \n\n{topic_chunk}"),
-        ("placeholder", "{agent_scratchpad}"),
-    ])
-    
-    agent = create_tool_calling_agent(llm, tools, prompt)
-    agent_executor = AgentExecutor(agent=agent, tools=tools, verbose=False, max_iterations=3)
     
     try:
-        response = await agent_executor.ainvoke({
-            "topic_chunk": topic_chunk,
-            "nivel_escolaridade": inputs.get("nivel_escolaridade"),
-            "materia": inputs.get("materia")
-        })
-        return response["output"]
+        topic_name = topic_chunk.split("(Tempo Estimado")[0].replace("-", "").strip()
+        query = f"{inputs.get('materia')} {topic_name} referências"
+        
+        # Pesquisa nativa com DDGS
+        results = DDGS().text(query, max_results=3)
+        res_list = list(results)
+        if res_list:
+            web_context = "\n".join([f"- {r.get('title', '')}: {r.get('body', '')}" for r in res_list])
+        else:
+            web_context = "Sem resultados adicionais relevantes na web."
     except Exception as e:
-        return f"===NOVO_TOPICO===\nErro ao pesquisar tópico: {topic_chunk}\nErro: {str(e)}"
+        web_context = "Pesquisa falhou."
+
+    system_prompt = f"""Você é um Professor de nível {inputs.get('nivel_escolaridade')} especialista em {inputs.get('materia')} e Pesquisador Acadêmico experiente.
+Seu trabalho é expandir o tópico recebido incorporando referências e profundidade com base no Contexto da Web fornecido (se houver e for pertinente).
+Seja didático e vá direto ao ponto. Não gere textos enciclopédicos.
+
+OBRIGATÓRIO: 
+- Inicie todo o seu texto com a string literal "===NOVO_TOPICO===" no início exato da resposta.
+- Logo abaixo, insira o Título do Tópico preservando sua tag de '(Tempo Estimado: X min)'.
+- Em seguida, expanda a explicação teórica do tópico."""
+
+    prompt = ChatPromptTemplate.from_messages([
+        ("system", system_prompt),
+        ("human", "Expanda o seguinte bloco de tópico do mapa estrutural:\n\n{topic_chunk}\n\nResultados da Pesquisa Web:\n{web_context}"),
+    ])
+    
+    chain = prompt | llm | StrOutputParser()
+    
+    try:
+        return await chain.ainvoke({
+            "topic_chunk": topic_chunk,
+            "web_context": web_context
+        })
+    except Exception as e:
+        return f"===NOVO_TOPICO===\nErro ao expandir tópico: {topic_chunk}\nErro: {str(e)}"
 
 async def research_topics_parallel(structural_map: str, inputs: dict) -> str:
     """
