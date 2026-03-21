@@ -8,6 +8,27 @@ import time
 from duckduckgo_search import DDGS
 
 # --- Setup Custom Tools ---
+@tool("Ler Arquivo Completo")
+def read_full_file_tool(file_path: str) -> str:
+    """Ferramenta para extrair TODO o texto de um arquivo local (PDF, DOCX, TXT). Obrigatório passar o caminho do arquivo."""
+    try:
+        ext = file_path.lower().split('.')[-1]
+        if ext == 'pdf':
+            from pypdf import PdfReader
+            reader = PdfReader(file_path)
+            return "\n".join([page.extract_text() for page in reader.pages if page.extract_text()])
+        elif ext == 'docx':
+            import docx
+            doc = docx.Document(file_path)
+            return "\n".join([p.text for p in doc.paragraphs])
+        elif ext == 'txt':
+            with open(file_path, 'r', encoding='utf-8') as f:
+                return f.read()
+        else:
+            return "Formato não suportado por esta ferramenta local."
+    except Exception as e:
+        return f"Erro ao ler o arquivo: {str(e)}"
+
 
 @tool("Pesquisa na Internet")
 def duckduckgo_search(query: str) -> str:
@@ -44,9 +65,9 @@ def analyze_video_tool(video_path: str, prompt: str = "Extraia os temas, conceit
         if uploaded_file.state.name == "FAILED":
             return "Erro ao processar o vídeo na API do Gemini."
             
-        print(f"Vídeo processado. Gerando conteúdo via Gemini 1.5 Pro...")
+        print(f"Vídeo processado. Gerando conteúdo via Gemini 3.1 Pro...")
         response = client.models.generate_content(
-             model='gemini-1.5-pro',
+             model='gemini-3.1-pro-preview',
              contents=[uploaded_file, prompt]
         )
         
@@ -63,19 +84,17 @@ class PreparoDeAula():
 
     @agent
     def document_analyst(self) -> Agent:
-        # GPT-4o-mini is fine for NLP, but since Document Analyst needs large context, we can use Gemini 1.5 Pro here as well. Let's use gpt-4o-mini as requested for NLP, except for video which uses the custom Gemini tool.
-        # However, to process large PDFs, Gemini 1.5 Pro or GPT-4o-mini can be used. We'll use GPT-4o-mini for the agent.
-        llm = LLM(model="gpt-4o-mini")
+        llm = LLM(model="gemini/gemini-3.1-pro-preview", max_tokens=8192)
         return Agent(
             config=self.agents_config['document_analyst'],
             verbose=True,
             llm=llm,
-            tools=[PDFSearchTool(), DOCXSearchTool(), ScrapeWebsiteTool(), YoutubeVideoSearchTool(), analyze_video_tool]
+            tools=[read_full_file_tool, ScrapeWebsiteTool(), YoutubeVideoSearchTool(), analyze_video_tool]
         )
 
     @agent
     def researcher(self) -> Agent:
-        llm = LLM(model="gpt-4o-mini")
+        llm = LLM(model="gemini/gemini-3.1-pro-preview", max_tokens=8192)
         return Agent(
             config=self.agents_config['researcher'],
             verbose=True,
@@ -83,15 +102,11 @@ class PreparoDeAula():
             tools=[duckduckgo_search]
         )
 
-    @agent
-    def lesson_planner(self) -> Agent:
-        llm = LLM(model="gpt-4o-mini")
-        return Agent(
-            config=self.agents_config['lesson_planner'],
-            verbose=True,
-            llm=llm,
-            allow_delegation=False
-        )
+    # O lesson_planner foi removido do Crew Sequencial para atuar de forma nativa/direta (Map-Reduce)
+    # @agent
+    # def lesson_planner(self) -> Agent:
+    #     llm = LLM(model="anthropic/claude-sonnet-4-6", max_tokens=8192)
+    #     return Agent(
 
     @task
     def analyze_documents_task(self) -> Task:
@@ -105,12 +120,13 @@ class PreparoDeAula():
             config=self.tasks_config['research_topic_task']
         )
 
-    @task
-    def create_lesson_plan_task(self) -> Task:
-        return Task(
-            config=self.tasks_config['create_lesson_plan_task'],
-            output_file='roteiro_de_aula.md'
-        )
+    # A tarefa 3 foi removida do Crew Sequencial para atuar nativamente no main.py
+    # @task
+    # def create_lesson_plan_task(self) -> Task:
+    #     return Task(
+    #         config=self.tasks_config['create_lesson_plan_task'],
+    #         output_file='roteiro_de_aula.md'
+    #     )
 
     @crew
     def crew(self) -> Crew:
