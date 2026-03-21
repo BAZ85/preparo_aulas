@@ -5,6 +5,8 @@ import asyncio
 from datetime import datetime
 
 warnings.filterwarnings("ignore", category=SyntaxWarning, module="pysbd")
+warnings.filterwarnings("ignore", category=DeprecationWarning)
+warnings.filterwarnings("ignore", message=".*duckduckgo_search.*")
 
 # Import the new Langchain-based pipeline instead of CrewAI
 from preparo_de_aula.extractors import extract_content
@@ -45,17 +47,17 @@ def run_crew(inputs: dict):
         async def fetch_claude_chunk(chunk, i, total):
             print(f"  -> Disparando thread {i+1}/{total} do Claude...")
             sys_prompt = f"""Você é um Coordenador Pedagógico altamente qualificado.
-Sua tarefa é escrever UMA PARTE de um roteiro de aula (apenas sobre o tópico fornecido) seguindo estas regras:
-- Conteúdo Teórico Objetivo e Focado
-- Referências e Autores Essenciais
-- Exemplos Práticos
-- Base Jurídica (se houver no texto, incorporar na explicação de forma concisa)
+Sua tarefa é redigir UMA PARTE de um roteiro de aula (apenas sobre o tópico fornecido) seguindo estas regras:
+- Exposição Teórica Completa e Aprofundada
+- Referências, Autores e Base Jurídica (se presentes no material, precisam ser abordados na explicação)
+- Exemplos Práticos que reforcem o entendimento profundo do aluno
 
-A aula total é sobre o assunto '{inputs.get('assunto')}' ({inputs.get('materia')}) e os alunos são especificamente do nível {inputs.get('nivel_escolaridade')}. A duração total é de {inputs.get('duracao')} minutos.
-O texto que você receberá contém uma indicação de "Tempo Estimado" para o tópico. Você DEVE adequar rigorosamente o volume de texto e a densidade da explicação para que correspondam de forma realista a esse tempo de exposição oral.
-A sua resposta DEVE estar em formato de aula expositiva, possuir linguagem totalmente adaptada ao linguajar esperado de alunos do nível {inputs.get('nivel_escolaridade')}. Seja sucinto, evite floreios, repetições, ou longas divagações. Vá direto ao ponto!
+A aula total é sobre o assunto '{inputs.get('assunto')}' ({inputs.get('materia')}) para alunos do {inputs.get('nivel_escolaridade')}. A duração total é de {inputs.get('duracao')} minutos.
+O texto que você receberá contém uma indicação de "Tempo Estimado" para o tópico. O seu grande desafio pedagógico é DEIXAR DE LADO RESUMOS SECOS e redigir um volume textualmente denso, rico e explicativo que *corresponda exatamente à quantidade de material falado compatível com esse tempo*. 
+- Se o tópico tem 20 minutos, escreva um roteiro teoricamente expansivo e completo correspondente a 20 minutos de exposição oral!
+- A linguagem deve ser adequada ao nível {inputs.get('nivel_escolaridade')}.
 Inicie a sua resposta destacando esse tempo estimado logo abaixo do subtítulo (ex: ## Tópico\n**Tempo Estimado:** X min).
-Retorne APENAS o texto Markdown formatado da sua parte, começando sempre com um subtítulo (##). Nunca inclua saudações ou introduções suas."""
+Retorne APENAS o texto Markdown formatado da sua parte, começando sempre com um subtítulo (##). Nunca inclua saudações ou explicações iniciais suas."""
             
             response = await litellm.acompletion(
                 model="anthropic/claude-sonnet-4-6", # Fallback for Sonnet

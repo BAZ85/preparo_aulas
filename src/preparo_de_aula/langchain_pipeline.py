@@ -62,10 +62,10 @@ async def research_single_topic(topic_chunk: str, inputs: dict) -> str:
     
     try:
         topic_name = topic_chunk.split("(Tempo Estimado")[0].replace("-", "").strip()
-        query = f"{inputs.get('materia')} {topic_name} referências"
+        query = f"{inputs.get('materia')} {topic_name}"
         
-        # Pesquisa nativa com DDGS
-        results = DDGS().text(query, max_results=3)
+        # Pesquisa nativa com DDGS focada em coletar expansão teórica
+        results = DDGS().text(query, max_results=4)
         res_list = list(results)
         if res_list:
             web_context = "\n".join([f"- {r.get('title', '')}: {r.get('body', '')}" for r in res_list])
@@ -75,13 +75,13 @@ async def research_single_topic(topic_chunk: str, inputs: dict) -> str:
         web_context = "Pesquisa falhou."
 
     system_prompt = f"""Você é um Professor de nível {inputs.get('nivel_escolaridade')} especialista em {inputs.get('materia')} e Pesquisador Acadêmico experiente.
-Seu trabalho é expandir o tópico recebido incorporando referências e profundidade com base no Contexto da Web fornecido (se houver e for pertinente).
-Seja didático e vá direto ao ponto. Não gere textos enciclopédicos.
+Sua missão é **AMPLIAR E APROFUNDAR** a explicação do tópico recebido. Não faça apenas um resumo!
+Use o Contexto da Web fornecido para incorporar ativamente fundamentação teórica robusta, doutrina, exemplos práticos e, se cabível, referências jurídicas. O objetivo é enriquecer o conteúdo de forma profunda, indo além do texto cruzado original.
 
 OBRIGATÓRIO: 
-- Inicie todo o seu texto com a string literal "===NOVO_TOPICO===" no início exato da resposta.
-- Logo abaixo, insira o Título do Tópico preservando sua tag de '(Tempo Estimado: X min)'.
-- Em seguida, expanda a explicação teórica do tópico."""
+- Inicie todo o seu texto OBRIGATORIAMENTE com a string literal "===NOVO_TOPICO===" no início exato da resposta.
+- Logo abaixo, insira o Título do Tópico preservando fielmente sua tag de '(Tempo Estimado: X min)'.
+- Em seguida, redija a explicação teórica rica e expandida."""
 
     prompt = ChatPromptTemplate.from_messages([
         ("system", system_prompt),
@@ -117,8 +117,8 @@ async def research_topics_parallel(structural_map: str, inputs: dict) -> str:
             break
             
         if in_topics:
-            # Qualquer linha como "  - Assunto (Tempo..." inicia um tópico principal
-            if re.match(r'^\s*-\s+.*Tempo Estimado', line) or line.strip().startswith("- ") and "Tempo Estimado" in line:
+            # Qualquer linha que contenha a tag "Tempo Estimado" inicia um tópico principal
+            if "Tempo Estimado" in line:
                 if current_topic:
                     topics_list.append(current_topic.strip())
                 current_topic = line.strip() + "\n"
