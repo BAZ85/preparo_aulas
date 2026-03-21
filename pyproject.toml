@@ -8,15 +8,18 @@ dependencies = [
     "crewai-tools>=1.9.3",
     "crewai[anthropic,tools]==1.9.3",
     "duckduckgo-search>=8.1.1",
+    "fastapi>=0.135.1",
     "google-genai>=1.64.0",
     "htmldocx>=0.0.6",
     "langchain-community>=0.4.1",
+    "litellm>=1.75.3",
     "markdown>=3.10.2",
     "pandas>=2.3.3",
     "pypdf>=6.7.3",
     "python-docx>=1.2.0",
     "python-dotenv>=1.1.1",
     "streamlit>=1.54.0",
+    "uvicorn>=0.40.0",
     "youtube-transcript-api>=1.2.4",
 ]
 
