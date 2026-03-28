@@ -12,10 +12,11 @@ def generate_reveal_html(markdown_content: str, custom_template_html: str = None
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/4.3.1/theme/simple.min.css" id="theme">
     <style>
         .reveal h1, .reveal h2, .reveal h3 { text-transform: none !important; }
-        .reveal h1 { font-size: 2.5em; margin-bottom: 20px; }
-        .reveal h2 { font-size: 1.8em; margin-bottom: 20px; }
-        .reveal p, .reveal li { font-size: 1.1em; line-height: 1.4; color: #111; }
-        .reveal img { max-height: 400px; border-radius: 8px; box-shadow: 0 4px 15px rgba(0,0,0,0.3); }
+        .reveal h1 { font-size: 2.4em; margin-bottom: 0.4em; }
+        .reveal h2 { font-size: 1.7em; margin-bottom: 0.4em; }
+        .reveal p, .reveal li { font-size: 1.2em; line-height: 1.4; color: #111; }
+        .reveal ul { margin-left: 1em; }
+        .reveal img { max-height: 350px; border-radius: 8px; box-shadow: 0 4px 15px rgba(0,0,0,0.3); }
         .reveal-viewport { background: transparent !important; }
         .reveal .slides section { background: transparent; padding: 20px; box-sizing: border-box; }
     </style>
