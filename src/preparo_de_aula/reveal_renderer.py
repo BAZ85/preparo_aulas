@@ -1,56 +1,28 @@
 import io
 
-def generate_reveal_html(markdown_content: str, bg_image_base64: str = None) -> str:
+def generate_reveal_html(markdown_content: str, custom_template_html: str = None) -> str:
     """
-    Injeta o markdown dentro do template padrão do Reveal.js (carregado de CDN)
-    Usa tema simples (claro/preto) com opção de imagem de fundo com overlay semi-transparente.
+    Injeta o markdown dentro do template padrão do Reveal.js (ou em um template HTML customizado).
+    Procura pela tag {{SLIDES_AQUI}} no template customizado para aplicar o bloco de slides.
     """
-    bg_style = ""
-    if bg_image_base64:
-        bg_style = f"""
-        .reveal {{
-            background-image: url('{bg_image_base64}');
-            background-size: cover;
-            background-position: center;
-        }}
-        .reveal .slides section {{
-            background: rgba(255, 255, 255, 0.88);
-            padding: 40px !important;
-            border-radius: 15px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
-            color: #000;
-        }}
-        """
-
-    html_template = f"""<!doctype html>
-<html>
-<head>
-    <meta charset="utf-8">
+    reveal_head = """
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-
-    <title>Apresentação de Aula</title>
-
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/4.3.1/reset.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/4.3.1/reveal.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/4.3.1/theme/simple.min.css" id="theme">
-
     <style>
-        {bg_style}
-        .reveal h1, .reveal h2, .reveal h3 {{
-            text-transform: none; /* Mantém maiúsculas/minúsculas naturais */
-        }}
-        .reveal img {{
-            max-height: 400px; /* Limita altura para não estourar o slide */
-            border-radius: 8px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
-        }}
-        .reveal ul {{
-            font-size: 0.9em;
-        }}
+        .reveal h1, .reveal h2, .reveal h3 { text-transform: none !important; }
+        .reveal h1 { font-size: 2.5em; margin-bottom: 20px; }
+        .reveal h2 { font-size: 1.8em; margin-bottom: 20px; }
+        .reveal p, .reveal li { font-size: 1.1em; line-height: 1.4; color: #111; }
+        .reveal img { max-height: 400px; border-radius: 8px; box-shadow: 0 4px 15px rgba(0,0,0,0.3); }
+        .reveal-viewport { background: transparent !important; }
+        .reveal .slides section { background: transparent; padding: 20px; box-sizing: border-box; }
     </style>
-</head>
-<body>
-    <div class="reveal">
+    """
+
+    reveal_body = f"""
+    <div class="reveal" style="width: 100%; height: 100%;">
         <div class="slides">
             <section data-markdown data-separator="^---$" data-separator-notes="^Note:">
                 <textarea data-template>
@@ -59,24 +31,71 @@ def generate_reveal_html(markdown_content: str, bg_image_base64: str = None) -> 
             </section>
         </div>
     </div>
+    """
 
-    <!-- Bibliotecas JS do Reveal -->
+    reveal_scripts = """
     <script src="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/4.3.1/reveal.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/4.3.1/plugin/markdown/markdown.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/4.3.1/plugin/notes/notes.js"></script>
-
     <script>
-        Reveal.initialize({{
+        Reveal.initialize({
             hash: true,
             slideNumber: true,
             center: true,
+            width: 1024,
+            height: 768,
             margin: 0.1,
             minScale: 0.2,
-            maxScale: 1.5,
+            maxScale: 1.2,
+            backgroundTransition: 'none',
             plugins: [ RevealMarkdown, RevealNotes ]
-        }});
+        });
     </script>
+    """
+
+    if custom_template_html:
+        tpl = custom_template_html
+        
+        # Inject head before </head>
+        if "</head>" in tpl:
+            tpl = tpl.replace("</head>", reveal_head + "\n</head>")
+        else:
+            tpl = reveal_head + "\n" + tpl
+            
+        # Inject slide body in placeholder
+        if "{{SLIDES_AQUI}}" in tpl:
+            tpl = tpl.replace("{{SLIDES_AQUI}}", reveal_body)
+        elif "</body>" in tpl:
+            tpl = tpl.replace("</body>", reveal_body + "\n</body>")
+        else:
+            tpl += "\n" + reveal_body
+            
+        # Inject scripts before </body>
+        if "</body>" in tpl:
+            tpl = tpl.replace("</body>", reveal_scripts + "\n</body>")
+        else:
+            tpl += "\n" + reveal_scripts
+            
+        return tpl
+    else:
+        # Fallback padrão (Fundo branco simples)
+        return f"""<!doctype html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>Apresentação de Aula</title>
+    {reveal_head}
+    <style>
+        .reveal .slides section {{
+            background: #ffffff;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }}
+    </style>
+</head>
+<body>
+    {reveal_body}
+    {reveal_scripts}
 </body>
 </html>
 """
-    return html_template

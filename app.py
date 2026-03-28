@@ -131,22 +131,20 @@ if modo == "Gerar Roteiro de Aula":
                 except Exception as docx_err:
                     st.error(f"Erro ao gerar DOCX: {docx_err}")
             with col_btn3:
-                bg_img_r = st.file_uploader("Imagem de Fundo (Opcional)", type=['png', 'jpg', 'jpeg'], key='bg_r')
+                tpl_html_r = st.file_uploader("Template Visual HTML (Opcional)", type=['html'], key='tpl_r')
                 if st.button("🎬 Criar Rascunho da Apresentação Web", type="primary", use_container_width=True):
                     with st.spinner("🚀 Estruturando os tópicos base dos slides..."):
                         try:
-                            import base64
-                            bg_b64_r = None
-                            if bg_img_r:
-                                enc = base64.b64encode(bg_img_r.getbuffer()).decode('utf-8')
-                                bg_b64_r = f"data:{bg_img_r.type};base64,{enc}"
+                            custom_html_r = None
+                            if tpl_html_r:
+                                custom_html_r = tpl_html_r.getvalue().decode('utf-8', errors='ignore')
                                 
                             markdown_slides = asyncio.run(generate_reveal_markdown(
                                 st.session_state['last_roteiro'], 
                                 st.session_state['last_inputs']
                             ))
                             st.session_state['draft_markdown_r'] = markdown_slides
-                            st.session_state['bg_b64_r'] = bg_b64_r
+                            st.session_state['custom_html_r'] = custom_html_r
                             st.success("Rascunho criado! Revise abaixo:")
                         except Exception as e:
                             st.error(f"Erro ao criar rascunho: {e}")
@@ -158,7 +156,7 @@ if modo == "Gerar Roteiro de Aula":
                 edited_md = st.text_area("Markdown dos Slides", value=st.session_state['draft_markdown_r'], height=400, key="editor_r")
                 
                 if st.button("✨ Confirmar e Renderizar Design", type="primary", use_container_width=True):
-                    html_content = generate_reveal_html(edited_md, bg_image_base64=st.session_state.get('bg_b64_r'))
+                    html_content = generate_reveal_html(edited_md, custom_template_html=st.session_state.get('custom_html_r'))
                     st.session_state['last_html'] = html_content
                     
             if st.session_state.get('last_html'):
@@ -184,7 +182,7 @@ elif modo == "Gerar Slides":
         assunto_s = st.text_input("Assunto Principal", key='a_s')
     with col2:
         uploaded_s = st.file_uploader("Arquivo Base (PDF, DOCX, TXT)", type=['pdf', 'docx', 'txt'])
-        bg_img_s = st.file_uploader("Imagem de Fundo (Opcional)", type=['png', 'jpg', 'jpeg'], key='bg_s')
+        tpl_html_s = st.file_uploader("Template Visual HTML (Opcional)", type=['html'], key='tpl_s')
         
     submit_s = st.button("🎬 Criar Rascunho da Apresentação", type="primary")
     
@@ -215,16 +213,14 @@ elif modo == "Gerar Slides":
                     'assunto': assunto_s
                 }
                 
-                import base64
-                bg_b64_s = None
-                if bg_img_s:
-                    enc = base64.b64encode(bg_img_s.getbuffer()).decode('utf-8')
-                    bg_b64_s = f"data:{bg_img_s.type};base64,{enc}"
+                custom_html_s = None
+                if tpl_html_s:
+                    custom_html_s = tpl_html_s.getvalue().decode('utf-8', errors='ignore')
                 
                 markdown_slides = asyncio.run(generate_reveal_markdown(content, inputs_s))
                 
                 st.session_state['draft_markdown_s'] = markdown_slides
-                st.session_state['bg_b64_s'] = bg_b64_s
+                st.session_state['custom_html_s'] = custom_html_s
                 st.session_state['assunto_s_cache'] = assunto_s
                 st.success("✨ Rascunho concebido! Revise o texto abaixo.")
             except Exception as e:
@@ -237,7 +233,7 @@ elif modo == "Gerar Slides":
         edited_md_s = st.text_area("Markdown dos Slides", value=st.session_state['draft_markdown_s'], height=400, key="editor_s")
         
         if st.button("✨ Confirmar e Renderizar Design", type="primary", use_container_width=True):
-            html_content = generate_reveal_html(edited_md_s, bg_image_base64=st.session_state.get('bg_b64_s'))
+            html_content = generate_reveal_html(edited_md_s, custom_template_html=st.session_state.get('custom_html_s'))
             st.session_state['final_html_s'] = html_content
             
     if st.session_state.get('final_html_s'):
