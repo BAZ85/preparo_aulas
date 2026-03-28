@@ -152,7 +152,8 @@ if modo == "Gerar Roteiro de Aula":
             if 'draft_markdown_r' in st.session_state:
                 st.markdown("---")
                 st.subheader("📝 Editor de Rascunho (Copiloto)")
-                st.markdown("Ajuste os textos abaixo. Se o slide estiver muito grande, aperte `Enter` e digite `---` em uma linha em branco para criar um novo slide.")
+                st.write("Ajuste os textos abaixo. Se o slide estiver muito grande, aperte Enter e digite --- em uma linha em branco para criar um novo slide.")
+                st.markdown("Observe que o conteúdo do slide é tudo que vem antes do `---`."E o )
                 edited_md = st.text_area("Markdown dos Slides", value=st.session_state['draft_markdown_r'], height=400, key="editor_r")
                 
                 if st.button("✨ Confirmar e Renderizar Design", type="primary", use_container_width=True):
@@ -229,7 +230,7 @@ elif modo == "Gerar Slides":
     if 'draft_markdown_s' in st.session_state:
         st.markdown("---")
         st.subheader("📝 Editor de Rascunho (Copiloto)")
-        st.markdown("Ajuste os textos abaixo. Se o slide estiver muito grande, aperte `Enter` e digite `---` em uma linha em branco para criar um novo slide.")
+        st.write("Ajuste os textos abaixo. Se o slide estiver muito grande, aperte Enter e digite --- em uma linha em branco para criar um novo slide.")
         edited_md_s = st.text_area("Markdown dos Slides", value=st.session_state['draft_markdown_s'], height=400, key="editor_s")
         
         if st.button("✨ Confirmar e Renderizar Design", type="primary", use_container_width=True):
