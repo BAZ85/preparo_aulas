@@ -54,7 +54,7 @@ if modo == "Gerar Roteiro de Aula":
     with col2:
         st.header("2. Material de Referência")
         st.markdown("Carregue um arquivo para basear o conteúdo ou defina uma URL.")
-        uploaded_file = st.file_uploader("Arquivo (PDF, DOCX, MP4, etc)", type=['pdf', 'docx', 'mp4', 'mkv', 'txt'])
+        uploaded_files = st.file_uploader("Arquivos (PDF, DOCX, MP4, etc)", type=['pdf', 'docx', 'mp4', 'mkv', 'txt'], accept_multiple_files=True)
         reference_url = st.text_input("Ou URL de Referência (Artigo, YouTube, etc)", placeholder="https://...")
     
         submit = st.button("Gerar Roteiro de Aula", type="primary", use_container_width=True)
@@ -65,21 +65,23 @@ if modo == "Gerar Roteiro de Aula":
             st.stop()
             
         with st.spinner("🚀 Analisando materiais, pesquisando na internet e montando o roteiro... Isso pode levar alguns minutos."):
-            file_path = ""
-            if uploaded_file is not None:
+            file_paths = []
+            if uploaded_files:
                 temp_dir = tempfile.gettempdir()
-                file_path = os.path.join(temp_dir, uploaded_file.name)
-                with open(file_path, "wb") as f:
-                    f.write(uploaded_file.getbuffer())
+                for uf in uploaded_files:
+                    path = os.path.join(temp_dir, uf.name)
+                    with open(path, "wb") as f:
+                        f.write(uf.getbuffer())
+                    file_paths.append(path)
             elif reference_url:
-                file_path = reference_url
+                file_paths.append(reference_url)
 
             inputs = {
                 'nivel_escolaridade': nivel,
                 'materia': materia,
                 'assunto': assunto,
                 'duracao': str(duracao),
-                'arquivo_ou_url': file_path or "(Nenhum material de referência fornecido. O agente deverá pesquisar do zero.)"
+                'arquivo_ou_url': file_paths if file_paths else "(Nenhum material de referência fornecido. O agente deverá pesquisar do zero.)"
             }
             
             try:
@@ -182,7 +184,7 @@ elif modo == "Gerar Slides":
         materia_s = st.text_input("Matéria", key='m_s')
         assunto_s = st.text_input("Assunto Principal", key='a_s')
     with col2:
-        uploaded_s = st.file_uploader("Arquivo Base (PDF, DOCX, TXT)", type=['pdf', 'docx', 'txt'])
+        uploaded_files_s = st.file_uploader("Arquivos Base (PDF, DOCX, TXT)", type=['pdf', 'docx', 'txt'], accept_multiple_files=True)
         tpl_html_s = st.file_uploader("Template Visual HTML (Opcional)", type=['html'], key='tpl_s')
         
     submit_s = st.button("🎬 Criar Rascunho da Apresentação", type="primary")
@@ -191,18 +193,21 @@ elif modo == "Gerar Slides":
         if not materia_s or not assunto_s:
             st.error("Preencha matéria e assunto!")
             st.stop()
-        if not uploaded_s:
-            st.error("Forneça um arquivo como base para os slides.")
+        if not uploaded_files_s:
+            st.error("Forneça pelo menos um arquivo como base para os slides.")
             st.stop()
             
-        with st.spinner("🚀 Lendo documento e estruturando rascunho base..."):
+        with st.spinner("🚀 Lendo documento(s) e estruturando rascunho base..."):
             try:
+                file_paths = []
                 temp_dir = tempfile.gettempdir()
-                file_path = os.path.join(temp_dir, uploaded_s.name)
-                with open(file_path, "wb") as f:
-                    f.write(uploaded_s.getbuffer())
+                for uf in uploaded_files_s:
+                    path = os.path.join(temp_dir, uf.name)
+                    with open(path, "wb") as f:
+                        f.write(uf.getbuffer())
+                    file_paths.append(path)
                     
-                content = extract_content(file_path)
+                content = extract_content(file_paths)
                 
                 if not content or len(content) < 50:
                     st.error("Não foi possível extrair conteúdo suficiente do arquivo indicado.")

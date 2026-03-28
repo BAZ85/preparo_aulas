@@ -9,17 +9,25 @@ import time
 import requests
 from bs4 import BeautifulSoup
 
-def extract_content(source: str) -> str:
+def extract_content(sources) -> str:
     """
-    Dado o caminho de um arquivo local ou uma URL, extrai todo seu conteúdo em texto de forma nativa e rápida.
+    Dado o caminho de um arquivo local, uma URL, ou uma lista deles, extrai todo seu conteúdo em texto de forma nativa e rápida.
     """
-    if "Nenhum material de referência fornecido" in source:
-        return source
+    if isinstance(sources, str):
+        sources = [sources]
+        
+    all_content = []
+    for source in sources:
+        if "Nenhum material de referência fornecido" in source:
+            all_content.append(source)
+            continue
 
-    if source.startswith("http"):
-        return _extract_from_url(source)
-    else:
-        return _extract_from_file(source)
+        if source.startswith("http"):
+            all_content.append(_extract_from_url(source))
+        else:
+            all_content.append(_extract_from_file(source))
+            
+    return "\n\n=== PRÓXIMO MATERIAL ===\n\n".join(all_content)
 
 def _extract_from_url(url: str) -> str:
     if "youtube.com" in url or "youtu.be" in url:
