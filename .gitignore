@@ -6,3 +6,5 @@ venv/
 *.docx
 roteiro_de_aula.md
 arquivos/
+.agent/
+tests/
