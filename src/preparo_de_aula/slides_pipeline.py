@@ -10,26 +10,27 @@ from pptx.enum.text import PP_ALIGN
 async def generate_reveal_markdown(content: str, inputs: dict) -> str:
     """Gera o Markdown puro, estilizado para uso no ecossistema web Reveal.js"""
     sys_prompt = f"""Você é um Especialista em Apresentações e Professor de {inputs.get('materia')}.
-Sua tarefa é criar uma estrutura de slides a partir do conteúdo fornecido.
+Sua tarefa é criar uma estrutura de slides a partir do conteúdo fornecido. Construa slides balanceados que sirvam de guia claro para a aula.
 Os slides serão voltados para alunos do nível: {inputs.get('nivel_escolaridade')}.
 Assunto da Apresentação: {inputs.get('assunto')}
 
 Regras ESTRITAS para os slides em Markdown (Reveal.js):
-1. Separe cada slide com exatamente TRÊS hifens "---", garantindo pular uma linha antes e depois de "---".
-2. Use "## Titulo" sempre com um Emoji legal no cabeçalho do slide.
-3. REGRA CRÍTICA DE TAMANHO (ANTI-OVERFLOW): O slide visual deve ser EXTREMAMENTE minimalista, apenas palavras-chave (máximo Absoluto de 3 a 5 bullet points curtíssimos). Se o tema do slide render muito assunto, É OBRIGATÓRIO quebrar o conteúdo em múltiplos slides, repetindo o título e adicionando " (Cont.)". NUNCA escreva parágrafos densos no bloco visual.
-4. Todo o roteiro pesado e detalhado que o professor irá Falar deve ir APENAS para as anotações secretas do orador. Coloque-se no final do slide, usando estritamente a palavra mágica 'Note:'.
+
+1. ESTRUTURA GERAL: O primeiro slide deve obrigatoriamente ser uma 'capa', contendo apenas a matéria e o assunto da aula. O último slide deve ser de agradecimento e conter explicitamente a frase "Até a próxima aula!".
+2. Separe cada slide com exatamente TRÊS hifens "---", garantindo pular uma linha antes e depois de "---".
+3. Use "## Titulo" sempre com um Emoji legal no cabeçalho do slide.
+4. QUANTIDADE DE TÓPICOS: Cada slide (exceto capa/encerramento) deve conter NO MÁXIMO 3 tópicos. NUNCA coloque parágrafos densos no bloco visual. Se o tema for extenso, quebre a explicação em múltiplos slides, repetindo o título e adicionando " (Cont.)".
+5. SLIDE VISUAL VS NOTAS DO ORADOR: Cada tópico no slide visual deve ter um destaque e uma *breve explicação* direta (máximo de 10 a 15 palavras por tópico), para guiar o apresentador e os alunos. Já as explicações detalhadas, aprofundamentos teóricos e texto pesado devem ir EXCLUSIVAMENTE para as anotações secretas do orador. Coloque as notas no final do slide, usando estritamente a palavra mágica 'Note:'.
 
 Exemplo RIGOROSO:
 ## 📜 Origens Históricas
 
-- Ocorreu na Roma Antiga
-- Separação entre poderes
-- Influência até os dias de hoje
+- **Roma Antiga:** O modelo teve suas raízes no direito romano estruturado.
+- **Separação de Poderes:** Lançou os alicerces básicos da política atual.
+- **Legado Moderno:** Princípios fundamentais que ainda regem o código civil.
 
 Note:
-O professor deve explicar aqui as nuances do direito romano...
-
+O professor deve explicar aqui as nuances do direito romano, destacando a influência de Justiniano. Aprofundar como as antigas leis não-escritas passaram a ser registradas, detalhando as datas e principais pensadores envolvidos.
 ---
 
 ## 🏛️ Tribunais Modernos
@@ -49,25 +50,25 @@ O professor deve explicar aqui as nuances do direito romano...
 
 async def generate_slides_from_content(content: str, inputs: dict) -> list[dict]:
     sys_prompt = f"""Você é um Especialista em Apresentações e Professor de {inputs.get('materia')}.
-Sua tarefa é criar uma estrutura de slides a partir do conteúdo fornecido.
+Sua tarefa é criar uma estrutura de slides a partir do conteúdo fornecido. Construa slides balanceados que sirvam de guia claro para a aula.
 Os slides serão voltados para alunos do nível: {inputs.get('nivel_escolaridade')}.
 Assunto da Apresentação: {inputs.get('assunto')}
 
 Regras para os slides:
-1. Resuma o conteúdo do roteiro de forma didática, distribuindo em quantos slides forem necessários para não amontoar texto.
-2. Cada slide deve ter um título claro e curto.
-3. REGRA CRÍTICA PARA O CONTEÚDO: O conteúdo principal no slide deve ser EXTREMAMENTE minimalista. Use no máximo 3 a 4 tópicos por slide e JAMAIS ultrapasse 15 palavras por tópico. NUNCA escreva parágrafos longos no bloco CONTEUDO.
-4. Coloque toda a explicação densa, detalhes técnicos e exemplos na sessão NOTAS_DO_ORADOR. O slide visual serve apenas de âncora invisível.
+1. ESTRUTURA GERAL: O primeiro slide deve obrigatoriamente ser uma "Capa", contendo a matéria e o assunto da aula. O último slide deve ser o encerramento, contendo agradecimentos e explicitamente a frase "Até a próxima aula!".
+2. Resuma o conteúdo do roteiro de forma didática, distribuindo em quantos slides intermediários forem necessários. Cada slide deve ter um título claro e curto.
+3. QUANTIDADE DE TÓPICOS: Cada slide (exceto capa e encerramento) deve conter NO MÁXIMO 3 tópicos.
+4. SLIDE VISUAL VS NOTAS DO ORADOR: Cada tópico no bloco 'CONTEUDO' deve ter um destaque e uma *breve explicação* direta (máximo de 10 a 15 palavras por tópico), para guiar o apresentador e os alunos. Já as explicações densas e aprofundamentos teóricos devem ir EXCLUSIVAMENTE para a seção 'NOTAS_DO_ORADOR'.
 5. Retorne os slides ESTRITAMENTE no formato Markdown abaixo. Separe cada slide com exatamente três hifens "---".
 
 Formato Exigido:
 ---
 TITULO: Título do Slide 1
 CONTEUDO:
-- Ponto 1
-- Ponto 2
+- **Tópico 1:** Breve explicação visual para guiar a platéia.
+- **Tópico 2:** Outra breve explicação acompanhando o tema.
 NOTAS_DO_ORADOR:
-O professor deve enfatizar aqui que...
+O professor deve enfatizar aqui de forma aprofundada que...
 ---
 TITULO: Título do Slide 2
 ...
