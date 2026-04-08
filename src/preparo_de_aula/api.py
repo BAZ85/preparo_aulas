@@ -111,10 +111,17 @@ class MarkdownPayload(BaseModel):
     edited_markdown: str
 
 @app.post("/api/export/html")
-async def export_html_api(payload: MarkdownPayload):
-    """Exporta o HTML de Slides (Reveal.js) pronto para Apresentar."""
+async def export_html_api(
+    edited_markdown: str = Form(...),
+    template_arquivo: Optional[UploadFile] = File(None)
+):
+    """Exporta o HTML de Slides com Template Personalizado via Upload."""
     try:
-        html_content = generate_reveal_html(payload.edited_markdown)
+        custom_html = None
+        if template_arquivo and template_arquivo.filename:
+            custom_html = (await template_arquivo.read()).decode("utf-8")
+            
+        html_content = generate_reveal_html(edited_markdown, custom_template_html=custom_html)
         return {"status": "success", "html_content": html_content}
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
