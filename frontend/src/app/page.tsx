@@ -4,7 +4,6 @@ import React, { useState, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { BookOpen, Presentation, UploadCloud, Link as LinkIcon, Download, Loader2, Sparkles, CheckCircle2, ChevronRight, Play, FileCode2 } from 'lucide-react';
 import ReactMarkdown from 'react-markdown';
-import Image from 'next/image';
 
 const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8000/api";
 
@@ -190,17 +189,12 @@ export default function Home() {
         {/* Superior da Plataforma */}
         <header className="mb-10 text-center md:text-left flex flex-col md:flex-row items-center gap-6">
           
-          <motion.div 
-            initial={{ opacity: 0, scale: 0.8 }} animate={{ opacity: 1, scale: 1 }} 
-            className="relative w-28 h-28 shrink-0 flex items-center justify-center -ml-4"
+          <motion.div
+            initial={{ opacity: 0, scale: 0.8 }} animate={{ opacity: 1, scale: 1 }}
+            className="shrink-0"
           >
-             <Image 
-               src="/Syllabus2.png" 
-               alt="Syllabus Logo" 
-               width={112} 
-               height={112} 
-               className="object-contain drop-shadow-[0_0_20px_rgba(255,255,255,0.1)] brightness-110" 
-             />
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src="/Syllabus-canva.svg" alt="Syllabus Logo" className="h-28 md:h-36 w-auto" />
           </motion.div>
           
           <div className="flex flex-col items-center md:items-start">
