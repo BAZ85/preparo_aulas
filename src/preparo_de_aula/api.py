@@ -130,10 +130,10 @@ async def export_html_api(
 async def export_docx_api(payload: MarkdownPayload):
     """Cria o documento Word baixável com o roteiro de aula finalizado."""
     try:
-        docx_bytes = markdown_to_docx(payload.edited_markdown)
+        docx_io = markdown_to_docx(payload.edited_markdown)
         path = os.path.join(tempfile.gettempdir(), "roteiro_export.docx")
         with open(path, "wb") as f:
-            f.write(docx_bytes)
+            f.write(docx_io.getvalue())
         return FileResponse(path, filename="roteiro_de_aula.docx", 
                             media_type="application/vnd.openxmlformats-officedocument.wordprocessingml.document")
     except Exception as e:
