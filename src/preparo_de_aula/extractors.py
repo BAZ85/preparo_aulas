@@ -96,7 +96,7 @@ def _analyze_video_with_gemini(video_path: str) -> str:
             return "Erro ao processar o vídeo na API do Gemini."
             
         response = client.models.generate_content(
-             model='gemini-3.1-pro-preview',
+             model='gemini-1.5-pro',
              contents=[uploaded_file, "Faça uma transcrição e extraia todos os temas, princípios e conceitos fundamentais do vídeo."]
         )
         

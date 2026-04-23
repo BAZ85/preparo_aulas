@@ -12,7 +12,7 @@ warnings.filterwarnings("ignore", message=".*duckduckgo_search.*")
 from preparo_de_aula.extractors import extract_content
 from preparo_de_aula.langchain_pipeline import generate_structural_map, research_topics_parallel
 
-def run_crew(inputs: dict):
+async def run_crew(inputs: dict):
     """
     Orquestra o novo Pipeline baseado em Langchain e Paralelismo Assíncrono.
     """
@@ -29,7 +29,7 @@ def run_crew(inputs: dict):
         
         print("Iniciando Fase 2 (Pesquisa Direcionada Paralela no Langchain)...")
         # Roda o AgentExecutor paralelamente
-        documento_expandido = asyncio.run(research_topics_parallel(structural_map, inputs))
+        documento_expandido = await research_topics_parallel(structural_map, inputs)
         
         print("Iniciando Fase 3 (Map-Reduce Simultâneo do Roteiro via Claude 3.5 Sonnet)...")
         chunks = documento_expandido.split("===NOVO_TOPICO===")
@@ -60,7 +60,7 @@ Inicie a sua resposta destacando esse tempo estimado logo abaixo do subtítulo (
 Retorne APENAS o texto Markdown formatado da sua parte, começando sempre com um subtítulo (##). Nunca inclua saudações ou explicações iniciais suas."""
             
             response = await litellm.acompletion(
-                model="anthropic/claude-sonnet-4-6", # Fallback for Sonnet
+                model="anthropic/claude-3-5-sonnet-20241022",
                 messages=[
                     {"role": "system", "content": sys_prompt},
                     {"role": "user", "content": f"Escreva a seção do plano de aula EXCLUSIVAMENTE para o seguinte conteúdo mapeado abaixo:\n\n{chunk}"}
@@ -74,7 +74,7 @@ Retorne APENAS o texto Markdown formatado da sua parte, começando sempre com um
             return await asyncio.gather(*tasks)
             
         print(f"Injetando {len(valid_chunks)} blocos paralelamente no Anthropic API...")
-        results = asyncio.run(process_all_chunks(valid_chunks))
+        results = await process_all_chunks(valid_chunks)
         
         for r in results:
             roteiro_final += r
@@ -93,16 +93,5 @@ def run():
         'assunto': 'Revolução Francesa',
         'duracao': '50',
     }
-    run_crew(inputs)
+    asyncio.run(run_crew(inputs))
 
-def train():
-    pass
-
-def replay():
-    pass
-
-def test():
-    pass
-
-def run_with_trigger():
-    pass

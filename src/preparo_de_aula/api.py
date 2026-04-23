@@ -1,5 +1,6 @@
 import os
 import tempfile
+import uuid
 import asyncio
 from typing import List, Optional
 from fastapi import FastAPI, UploadFile, File, Form, HTTPException
@@ -43,7 +44,8 @@ async def gerar_roteiro_api(
             temp_dir = tempfile.gettempdir()
             for uf in arquivos:
                 if uf.filename:
-                    path = os.path.join(temp_dir, uf.filename)
+                    unique_filename = f"{uuid.uuid4()}_{uf.filename}"
+                    path = os.path.join(temp_dir, unique_filename)
                     with open(path, "wb") as f:
                         f.write(await uf.read())
                     file_paths.append(path)
@@ -58,9 +60,7 @@ async def gerar_roteiro_api(
             'arquivo_ou_url': file_paths if file_paths else "(Nenhum)"
         }
         
-        # Isola o run_crew em uma Thread separada, para que o asyncio.run dele não estoure 
-        # conflito com o event loop padrão do FastAPI
-        resultado = await asyncio.to_thread(run_crew, inputs)
+        resultado = await run_crew(inputs)
         
         return {"status": "success", "data": resultado}
     except Exception as e:
@@ -90,7 +90,8 @@ async def gerar_slides_rascunho_api(
             file_paths = []
             for uf in arquivos:
                 if uf.filename:
-                    path = os.path.join(temp_dir, uf.filename)
+                    unique_filename = f"{uuid.uuid4()}_{uf.filename}"
+                    path = os.path.join(temp_dir, unique_filename)
                     with open(path, "wb") as f:
                         f.write(await uf.read())
                     file_paths.append(path)

@@ -7,7 +7,7 @@ from langchain_core.output_parsers import StrOutputParser
 from duckduckgo_search import DDGS
 
 def get_gemini_llm(temperature=0.7):
-    return ChatGoogleGenerativeAI(model="gemini-2.5-pro", temperature=temperature, max_output_tokens=8192)
+    return ChatGoogleGenerativeAI(model="gemini-1.5-pro", temperature=temperature, max_output_tokens=8192)
 
 def generate_structural_map(content: str, inputs: dict) -> str:
     """
