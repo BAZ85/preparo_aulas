@@ -19,5 +19,5 @@ COPY src/ ./src/
 
 EXPOSE 8000
 
-# Execução nativa para uso assíncrono via WSGI
-CMD ["uvicorn", "src.preparo_de_aula.api:app", "--host", "0.0.0.0", "--port", "8000"]
+# Execução nativa para uso assíncrono via WSGI (Com suporte a porta dinâmica do Railway)
+CMD sh -c "uvicorn src.preparo_de_aula.api:app --host 0.0.0.0 --port ${PORT:-8000}"
