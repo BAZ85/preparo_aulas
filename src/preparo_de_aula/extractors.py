@@ -95,8 +95,12 @@ def _analyze_video_with_gemini(video_path: str) -> str:
         if uploaded_file.state.name == "FAILED":
             return "Erro ao processar o vídeo na API do Gemini."
             
+        model_name = os.getenv("MODEL", "gemini-2.5-pro")
+        if model_name.startswith("gemini/"):
+            model_name = model_name.split("/", 1)[1]
+            
         response = client.models.generate_content(
-             model='gemini-1.5-pro',
+             model=model_name,
              contents=[uploaded_file, "Faça uma transcrição e extraia todos os temas, princípios e conceitos fundamentais do vídeo."]
         )
         
