@@ -78,8 +78,24 @@ export default function Home() {
       });
 
       if (!response.ok) {
-        const err = await response.json();
-        throw new Error(err.detail || "Erro engasgou a IA no Backend :(");
+        let errorMessage = "Erro engasgou a IA no Backend :(";
+        const contentType = response.headers.get("content-type");
+        if (contentType && contentType.includes("application/json")) {
+           const err = await response.json();
+           errorMessage = err.detail || errorMessage;
+        } else {
+           const textError = await response.text();
+           console.error("Servidor retornou HTML ao invés de JSON:", textError);
+           
+           if (response.status === 413) {
+              errorMessage = "Erro 413: O arquivo enviado é muito grande para o servidor processar.";
+           } else if (response.status === 504 || response.status === 502) {
+              errorMessage = `Erro ${response.status}: O servidor demorou muito para responder (Timeout). O arquivo pode ser muito complexo.`;
+           } else {
+              errorMessage = `Erro ${response.status}: O servidor retornou uma página inesperada. (Verifique os logs ou o tamanho do arquivo)`;
+           }
+        }
+        throw new Error(errorMessage);
       }
 
       const result = await response.json();
