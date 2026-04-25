@@ -17,6 +17,8 @@ RUN uv pip install --system -r pyproject.toml || uv pip install --system -e . ||
 # Puxa o código central da máquina python
 COPY src/ ./src/
 
+ENV PYTHONPATH=/app/src
+
 EXPOSE 8000
 
 # Execução nativa para uso assíncrono via WSGI (Com suporte a porta dinâmica do Railway)
