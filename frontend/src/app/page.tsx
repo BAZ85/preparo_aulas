@@ -91,8 +91,10 @@ export default function Home() {
               errorMessage = "Erro 413: O arquivo enviado é muito grande para o servidor processar.";
            } else if (response.status === 504 || response.status === 502) {
               errorMessage = `Erro ${response.status}: O servidor demorou muito para responder (Timeout). O arquivo pode ser muito complexo.`;
+           } else if (response.status === 404) {
+              errorMessage = `Erro 404: Rota não encontrada. O app tentou acessar '${API_BASE}${endpoint}' mas o servidor disse que essa URL não existe. Verifique a variável NEXT_PUBLIC_API_URL.`;
            } else {
-              errorMessage = `Erro ${response.status}: O servidor retornou uma página inesperada. (Verifique os logs ou o tamanho do arquivo)`;
+              errorMessage = `Erro ${response.status}: O servidor retornou uma página inesperada ao acessar '${API_BASE}${endpoint}'.`;
            }
         }
         throw new Error(errorMessage);
