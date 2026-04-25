@@ -31,7 +31,7 @@ async def run_crew(inputs: dict):
         # Roda o AgentExecutor paralelamente
         documento_expandido = await research_topics_parallel(structural_map, inputs)
         
-        print("Iniciando Fase 3 (Map-Reduce Simultâneo do Roteiro via Modelo Principal)...")
+        print("Iniciando Fase 3 (Map-Reduce Simultâneo do Roteiro via Claude 3.5 Sonnet)...")
         chunks = documento_expandido.split("===NOVO_TOPICO===")
         
         roteiro_final = f"# Roteiro de Aula: {inputs.get('assunto', '')} - {inputs.get('materia', '')}\n\n"
@@ -45,7 +45,7 @@ async def run_crew(inputs: dict):
             valid_chunks = [documento_expandido]
             
         async def fetch_claude_chunk(chunk, i, total):
-            print(f"  -> Disparando thread {i+1}/{total} do Modelo...")
+            print(f"  -> Disparando thread {i+1}/{total} do Claude...")
             sys_prompt = f"""Você é um Coordenador Pedagógico altamente qualificado.
 Sua tarefa é redigir UMA PARTE de um roteiro de aula (apenas sobre o tópico fornecido) seguindo estas regras:
 - Exposição Teórica Completa e Aprofundada
@@ -59,13 +59,8 @@ O texto que você receberá contém uma indicação de "Tempo Estimado" para o t
 Inicie a sua resposta destacando esse tempo estimado logo abaixo do subtítulo (ex: ## Tópico\n**Tempo Estimado:** X min).
 Retorne APENAS o texto Markdown formatado da sua parte, começando sempre com um subtítulo (##). Nunca inclua saudações ou explicações iniciais suas."""
             
-            model_name = os.getenv("MODEL", "gemini/gemini-2.5-pro")
-            if not model_name.startswith("gemini/") and not model_name.startswith("anthropic/") and not model_name.startswith("openai/"):
-                # Garante que tenha o prefixo para o LiteLLM saber qual provedor usar
-                model_name = f"gemini/{model_name}"
-                
             response = await litellm.acompletion(
-                model=model_name,
+                model="anthropic/claude-3-5-sonnet-20241022",
                 messages=[
                     {"role": "system", "content": sys_prompt},
                     {"role": "user", "content": f"Escreva a seção do plano de aula EXCLUSIVAMENTE para o seguinte conteúdo mapeado abaixo:\n\n{chunk}"}
@@ -78,7 +73,7 @@ Retorne APENAS o texto Markdown formatado da sua parte, começando sempre com um
             tasks = [fetch_claude_chunk(c, i, len(chunk_list)) for i, c in enumerate(chunk_list)]
             return await asyncio.gather(*tasks)
             
-        print(f"Injetando {len(valid_chunks)} blocos paralelamente no LiteLLM API...")
+        print(f"Injetando {len(valid_chunks)} blocos paralelamente no Anthropic API...")
         results = await process_all_chunks(valid_chunks)
         
         for r in results:
