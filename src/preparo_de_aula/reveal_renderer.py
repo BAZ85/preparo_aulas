@@ -12,9 +12,9 @@ def generate_reveal_html(markdown_content: str, custom_template_html: str = None
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/4.3.1/theme/simple.min.css" id="theme">
     <style>
         .reveal h1, .reveal h2, .reveal h3 { text-transform: none !important; }
-        .reveal h1 { font-size: 2.4em; margin-bottom: 0.4em; }
-        .reveal h2 { font-size: 1.7em; margin-bottom: 0.4em; }
-        .reveal p, .reveal li { font-size: 1.2em; line-height: 1.4; color: #111; }
+        .reveal h1 { font-size: 2.7em; margin-bottom: 0.4em; }
+        .reveal h2 { font-size: 2.1em; margin-bottom: 0.4em; }
+        .reveal p, .reveal li { font-size: 1.5em; line-height: 1.4; color: #111; }
         .reveal ul { margin-left: 1em; }
         .reveal img { max-height: 350px; border-radius: 8px; box-shadow: 0 4px 15px rgba(0,0,0,0.3); }
         .reveal-viewport { background: transparent !important; }
@@ -43,9 +43,9 @@ def generate_reveal_html(markdown_content: str, custom_template_html: str = None
             hash: true,
             slideNumber: true,
             center: true,
-            width: 1024,
-            height: 768,
-            margin: 0.1,
+            width: 1600,
+            height: 900,
+            margin: 0.02,
             minScale: 0.2,
             maxScale: 1.2,
             backgroundTransition: 'none',
